@@ -1,0 +1,39 @@
+{{- if and .Values.gateway.enabled .Values.keycloak.enabled }}
+{{- $mcpResource := .Values.keycloak.mcp.resource }}
+{{- if eq $mcpResource "" }}
+{{- $mcpResource = printf "https://%s.%s" .Values.mcp.host .Values.domain }}
+{{- end }}
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayPolicy
+metadata:
+  name: {{ .Values.gateway.name }}-jwt
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ .Values.gateway.name }}
+  traffic:
+    jwtAuthentication:
+      mode: Strict
+      providers:
+        - issuer: {{ printf "https://%s.%s/realms/%s" .Values.keycloak.ssoHost .Values.domain .Values.keycloak.realm | quote }}
+          audiences:
+            {{- toYaml .Values.keycloak.audiences | nindent 12 }}
+          jwks:
+            remote:
+              backendRef:
+                name: {{ .Values.keycloak.service.name }}
+                kind: Service
+                namespace: {{ .Values.keycloak.service.namespace }}
+                port: {{ .Values.keycloak.service.port }}
+              jwksPath: {{ printf "/realms/%s%s" .Values.keycloak.realm .Values.keycloak.jwksPath | quote }}
+          mcp:
+            provider: Keycloak
+            resourceMetadata:
+              resource: {{ $mcpResource | quote }}
+              scopesSupported:
+                {{- toYaml .Values.keycloak.mcp.scopesSupported | nindent 16 }}
+              bearerMethodsSupported:
+                {{- toYaml .Values.keycloak.mcp.bearerMethodsSupported | nindent 16 }}
+{{- end }}

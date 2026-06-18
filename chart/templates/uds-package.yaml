@@ -4,6 +4,17 @@ metadata:
   name: agentgateway
   namespace: {{ .Release.Namespace }}
 spec:
+  {{- if .Values.keycloak.enabled }}
+  sso:
+    - name: Agentgateway MCP
+      clientId: {{ .Values.keycloak.clientId }}
+      secretName: {{ .Values.keycloak.secretName }}
+      standardFlowEnabled: false
+      serviceAccountsEnabled: true
+      publicClient: false
+      redirectUris: []
+  {{- end }}
+
   {{- if .Values.monitoring.enabled }}
   monitor:
     - selector:
@@ -51,6 +62,26 @@ spec:
           app.kubernetes.io/name: agentgateway
         remoteGenerated: KubeAPI
         description: "Agentgateway controller to Kube API for Gateway API discovery"
+
+      {{- if .Values.keycloak.enabled }}
+      - direction: Egress
+        selector:
+          {{ .Values.gateway.podLabelKey }}: {{ .Values.gateway.name }}
+        remoteNamespace: {{ .Values.keycloak.service.namespace }}
+        remoteSelector:
+          app.kubernetes.io/name: {{ .Values.keycloak.service.name }}
+        port: {{ .Values.keycloak.service.port }}
+        description: "Data-plane proxy to Keycloak for JWKS"
+
+      - direction: Egress
+        selector:
+          {{ .Values.gateway.podLabelKey }}: {{ .Values.gateway.name }}
+        remoteNamespace: istio-tenant-gateway
+        remoteSelector:
+          app: tenant-ingressgateway
+        port: 443
+        description: "Data-plane proxy to Keycloak issuer via tenant gateway"
+      {{- end }}
 
       {{- with .Values.additionalNetworkAllow }}
       {{- toYaml . | nindent 6 }}

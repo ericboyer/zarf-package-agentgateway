@@ -15,3 +15,8 @@ packages:
           values:
             - path: monitoring.enabled
               value: false
+            # Flip to true to enable Keycloak JWT enforcement on the MCP gateway.
+            # Provisions a Keycloak client (agentgateway-mcp) and attaches an
+            # AgentgatewayPolicy that requires a valid JWT from sso.<domain>.
+            - path: keycloak.enabled
+              value: false
