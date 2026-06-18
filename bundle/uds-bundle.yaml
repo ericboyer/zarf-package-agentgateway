@@ -1,0 +1,17 @@
+kind: UDSBundle
+metadata:
+  name: agentgateway-test
+  description: A UDS bundle for deploying Agentgateway on a development cluster
+  version: dev
+
+packages:
+  - name: agentgateway
+    path: ../
+    ref: dev
+    flavor: upstream
+    overrides:
+      agentgateway:
+        uds-agentgateway-config:
+          values:
+            - path: monitoring.enabled
+              value: false

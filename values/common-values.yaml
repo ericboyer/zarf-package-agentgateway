@@ -1,0 +1,10 @@
+# Values common to all flavors
+
+monitoring:
+  enabled: false
+
+# Container-level hardening (the chart sets readOnlyRootFilesystem, runAsNonRoot,
+# drop ALL caps by default when securityContext is unset — keep that default).
+securityContext: {}
+
+podSecurityContext: {}

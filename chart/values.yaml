@@ -1,0 +1,6 @@
+domain: "###ZARF_VAR_DOMAIN###"
+
+monitoring:
+  enabled: false
+
+additionalNetworkAllow: []

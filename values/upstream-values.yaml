@@ -1,0 +1,16 @@
+# Pin upstream controller and proxy data plane images.
+# Both default to registry cr.agentgateway.dev; Zarf rewrites the controller
+# image (referenced in the Deployment PodSpec) automatically. The proxy image
+# is passed to the controller via env vars and applied to data-plane Gateway
+# pods the controller creates dynamically.
+controller:
+  image:
+    registry: cr.agentgateway.dev
+    repository: controller
+    tag: v1.2.1
+
+proxy:
+  image:
+    registry: cr.agentgateway.dev
+    repository: agentgateway
+    tag: v1.2.1

@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/zarf/main/zarf.schema.json
+kind: ZarfPackageConfig
+metadata:
+  name: agentgateway-common
+  description: "UDS Agentgateway Common Package"
+
+components:
+  - name: agentgateway
+    required: true
+    charts:
+      - name: uds-agentgateway-config
+        namespace: agentgateway
+        version: 0.1.0
+        localPath: ../chart
+      - name: agentgateway-crds
+        namespace: agentgateway
+        version: 1.2.1
+        url: oci://cr.agentgateway.dev/charts/agentgateway-crds
+      - name: agentgateway
+        namespace: agentgateway
+        version: 1.2.1
+        url: oci://cr.agentgateway.dev/charts/agentgateway
+        valuesFiles:
+          - ../values/common-values.yaml

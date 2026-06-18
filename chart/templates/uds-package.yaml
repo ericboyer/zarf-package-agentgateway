@@ -1,0 +1,36 @@
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: agentgateway
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- if .Values.monitoring.enabled }}
+  monitor:
+    - selector:
+        app.kubernetes.io/name: agentgateway
+      targetPort: 9092
+      portName: metrics
+      path: /metrics
+      kind: ServiceMonitor
+      description: Metrics scraping for Agentgateway controller
+  {{- end }}
+
+  network:
+    serviceMesh:
+      mode: ambient
+    allow:
+      - direction: Ingress
+        remoteGenerated: IntraNamespace
+
+      - direction: Egress
+        remoteGenerated: IntraNamespace
+
+      - direction: Egress
+        selector:
+          app.kubernetes.io/name: agentgateway
+        remoteGenerated: KubeAPI
+        description: "Agentgateway controller to Kube API for Gateway API discovery"
+
+      {{- with .Values.additionalNetworkAllow }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}

@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/uds-cli/refs/heads/main/tasks.schema.json
+tasks:
+  - name: health-check
+    description: Wait for Agentgateway controller deployment to become Available
+    actions:
+      - description: Agentgateway Health Check
+        wait:
+          cluster:
+            kind: Deployment
+            name: agentgateway
+            namespace: agentgateway
+            condition: Available
