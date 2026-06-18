@@ -1,0 +1,25 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gateway.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  gatewayClassName: {{ .Values.gateway.className }}
+  {{- if .Values.admin.enabled }}
+  infrastructure:
+    parametersRef:
+      group: agentgateway.dev
+      kind: AgentgatewayParameters
+      name: {{ .Values.gateway.name }}
+  {{- end }}
+  listeners:
+    {{- if .Values.gateway.http.enabled }}
+    - name: {{ .Values.gateway.http.name }}
+      protocol: HTTP
+      port: {{ .Values.gateway.http.port }}
+      allowedRoutes:
+        namespaces:
+          from: {{ .Values.gateway.http.allowedRoutesFrom }}
+    {{- end }}
+{{- end }}

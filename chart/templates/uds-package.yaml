@@ -18,6 +18,27 @@ spec:
   network:
     serviceMesh:
       mode: ambient
+    expose:
+      {{- if .Values.admin.enabled }}
+      - service: agentgateway-admin
+        selector:
+          {{ .Values.gateway.podLabelKey }}: {{ .Values.gateway.name }}
+        gateway: admin
+        host: {{ .Values.admin.host }}
+        port: {{ .Values.admin.port }}
+        targetPort: {{ .Values.admin.port }}
+        description: "Agentgateway Admin UI"
+      {{- end }}
+      {{- if .Values.mcp.enabled }}
+      - service: {{ .Values.gateway.name }}
+        selector:
+          {{ .Values.gateway.podLabelKey }}: {{ .Values.gateway.name }}
+        gateway: tenant
+        host: {{ .Values.mcp.host }}
+        port: {{ .Values.mcp.port }}
+        targetPort: {{ .Values.mcp.port }}
+        description: "Agentgateway MCP endpoint"
+      {{- end }}
     allow:
       - direction: Ingress
         remoteGenerated: IntraNamespace

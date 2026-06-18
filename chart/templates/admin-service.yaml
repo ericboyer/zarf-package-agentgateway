@@ -1,0 +1,19 @@
+{{- if .Values.admin.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentgateway-admin
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: agentgateway-admin
+    app.kubernetes.io/part-of: agentgateway
+spec:
+  type: ClusterIP
+  selector:
+    {{ .Values.gateway.podLabelKey }}: {{ .Values.gateway.name }}
+  ports:
+    - name: admin
+      port: {{ .Values.admin.port }}
+      targetPort: {{ .Values.admin.port }}
+      protocol: TCP
+{{- end }}

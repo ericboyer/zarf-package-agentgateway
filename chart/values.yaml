@@ -3,4 +3,42 @@ domain: "###ZARF_VAR_DOMAIN###"
 monitoring:
   enabled: false
 
+# Configuration for the data-plane Gateway resource that exposes admin UI + MCP.
+# The agentgateway controller creates a Deployment + Service when it sees a
+# Gateway referencing the `agentgateway` GatewayClass; the Service name matches
+# the Gateway name and lives in the same namespace.
+gateway:
+  # Render the Gateway resource. Set false to manage the Gateway yourself.
+  enabled: true
+  # Name of the Gateway resource (and therefore the controller-managed Service).
+  name: agentgateway-proxy
+  # GatewayClass managed by the agentgateway controller.
+  className: agentgateway
+  # Label the controller applies to data-plane pods. Used by the admin-UI
+  # Service this chart creates and by network policy selectors.
+  podLabelKey: gateway.networking.k8s.io/gateway-name
+  # HTTP listener — the MCP entry point. Users attach HTTPRoutes for /mcp etc.
+  http:
+    enabled: true
+    name: http
+    port: 80
+    # Same | All | Selector — who may attach Routes.
+    allowedRoutesFrom: Same
+
+# Admin UI is served on the proxy pods on port 15000 and is NOT exposed as a
+# Service by the controller — this chart creates one so it can be routed via
+# the UDS admin gateway. Disable to skip the Service + expose rule entirely.
+admin:
+  enabled: true
+  host: agentgateway
+  port: 15000
+
+# MCP endpoint goes through the controller-managed `agentgateway-proxy` Service.
+# `port` should match a listener configured on the Gateway above. Routes for
+# /mcp etc. are configured via HTTPRoute by users.
+mcp:
+  enabled: true
+  host: agentgateway-mcp
+  port: 80
+
 additionalNetworkAllow: []
